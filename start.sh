@@ -24,13 +24,9 @@ while ! nc -z nextcloud-aio-nextcloud 9001; do
     sleep 5
 done
 
-while ! [ -d /nextcloud/admin/files/nextcloud-aio-local-ai/models ]; do
-    echo "Waiting for nextcloud-aio-local-ai/models folder to be created"
+while ! [ -f /nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml ]; do
+    echo "Waiting for nextcloud-aio-local-ai/models.yaml file to be created"
     sleep 5
 done
 
-set -x
-rsync --stats --archive --human-readable -vv --delete --inplace /nextcloud/admin/files/nextcloud-aio-local-ai/models/ /models/
-set +x
-
-./local-ai "$@"
+./local-ai --preload-models-config "/nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml"

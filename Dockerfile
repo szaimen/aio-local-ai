@@ -10,11 +10,9 @@ RUN set -ex; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         netcat-openbsd \
-        rsync \
     ; \
     rm -rf /var/lib/apt/lists/*
 
 # hadolint ignore=DL3002
 USER root
 ENTRYPOINT [ "/start.sh" ]
-CMD ["/usr/bin/local-ai"]
