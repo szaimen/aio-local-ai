@@ -29,4 +29,10 @@ while ! [ -f /nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml ]; do
     sleep 5
 done
 
+# Set Threads automatically
+set -x
+THREADS="$(nproc)"
+export THREADS
+set +x
+
 ./local-ai --preload-models-config "/nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml"
