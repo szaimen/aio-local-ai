@@ -1,94 +1,36 @@
 #!/bin/bash
 
-# Fix socket
-rm -f /run/fail2ban/*
-
-if ! mountpoint -q /nextcloud; then
-    echo "/nextcloud is not a mountpoint which it must be!"
-    exit 1
+echo "CPU info:"
+grep -e "model\sname" /proc/cpuinfo | head -1
+grep -e "flags" /proc/cpuinfo | head -1
+if grep -q -e "\savx\s" /proc/cpuinfo ; then
+    echo "CPU:    AVX    found OK"
+else
+    echo "CPU: no AVX    found"
+fi
+if grep -q -e "\savx2\s" /proc/cpuinfo ; then
+    echo "CPU:    AVX2   found OK"
+else
+    echo "CPU: no AVX2   found"
+fi
+if grep -q -e "\savx512" /proc/cpuinfo ; then
+    echo "CPU:    AVX512 found OK"
+else
+    echo "CPU: no AVX512 found"
 fi
 
-while ! [ -f /nextcloud/data/nextcloud.log ]; do
-    echo "Waiting for /nextcloud/data/nextcloud.log to become available"
+while ! nc -z nextcloud-aio-nextcloud 9001; do
+    echo "Waiting for nextcloud to start"
     sleep 5
 done
 
-cat << FILTER > /etc/fail2ban/filter.d/nextcloud.conf
-[INCLUDES]
-before = common.conf
+while ! [ -d /nextcloud/admin/files/nextcloud-aio-local-ai/models ]; do
+    echo "Waiting for nextcloud-aio-local-ai/models folder to be created"
+    sleep 5
+done
 
-[Definition]
-_groupsre = (?:(?:,?\s*"\w+":(?:"[^"]+"|\w+))*)
-failregex = ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Login failed:
-            ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Trusted domain error.
-datepattern = ,?\s*"time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
-FILTER
+set -x
+rsync --stats --archive --human-readable -vv --delete --inplace /nextcloud/admin/files/nextcloud-aio-local-ai/models/ /models/
+set +x
 
-cat << JAIL > /etc/fail2ban/jail.d/nextcloud.local
-[nextcloud]
-enabled = true
-port = 80,443,8080,8443,3478
-protocol = tcp,udp
-filter = nextcloud
-banaction = %(banaction_allports)s
-maxretry = 3
-bantime = 14400
-findtime = 14400
-logpath = /nextcloud/data/nextcloud.log
-chain=DOCKER-USER
-JAIL
-
-if [ -f /vaultwarden/vaultwarden.log ]; then
-    echo "Configuring vaultwarden for logs"
-    # Vaultwarden conf
-    cat << BW_CONF > /etc/fail2ban/filter.d/vaultwarden.conf
-[INCLUDES]
-before = common.conf
-
-[Definition]
-failregex = ^.*Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$
-ignoreregex =
-BW_CONF
-
-    # Vaultwarden jail
-    cat << BW_JAIL_CONF > /etc/fail2ban/jail.d/vaultwarden.local
-[vaultwarden]
-enabled = true
-port = 80,443,8812
-protocol = tcp,udp
-filter = vaultwarden
-banaction = %(banaction_allports)s
-logpath = /vaultwarden/vaultwarden.log
-maxretry = 3
-bantime = 14400
-findtime = 14400
-chain=DOCKER-USER
-BW_JAIL_CONF
-
-    # Vaultwarden-admin conf
-    cat << BWA_CONF > /etc/fail2ban/filter.d/vaultwarden-admin.conf
-[INCLUDES]
-before = common.conf
-
-[Definition]
-failregex = ^.*Invalid admin token\. IP: <ADDR>.*$
-ignoreregex =
-BWA_CONF
-
-    # Vaultwarden-admin jail
-    cat << BWA_JAIL_CONF > /etc/fail2ban/jail.d/vaultwarden-admin.local
-[vaultwarden-admin]
-enabled = true
-port = 80,443,8812
-protocol = tcp,udp
-filter = vaultwarden-admin
-banaction = %(banaction_allports)s
-logpath = /vaultwarden/vaultwarden.log
-maxretry = 3
-bantime = 14400
-findtime = 14400
-chain=DOCKER-USER
-BWA_JAIL_CONF
-fi
-
-fail2ban-server -f --logtarget stderr --loglevel info 
+./local-ai "$@"
