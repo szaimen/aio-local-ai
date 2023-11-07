@@ -31,7 +31,7 @@ done
 
 # Set Threads automatically
 set -x
-THREADS="$(nproc)"
+THREADS="${THREADS:-$(nproc)}"
 export THREADS
 set +x
 
