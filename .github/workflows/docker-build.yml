@@ -6,7 +6,7 @@ on:
       tagName:
         description: "Tag name"
         required: true
-        default: 'v1'
+        default: 'v2'
         
 jobs:
   push_to_registry:
@@ -67,7 +67,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           context: './'
           no-cache: true
           file: 'Dockerfile'
