@@ -1,5 +1,5 @@
 # From https://github.com/go-skynet/LocalAI/blob/master/Dockerfile
-FROM quay.io/go-skynet/local-ai:v2.16.0-ffmpeg-core
+FROM quay.io/go-skynet/local-ai:v2.16.0-aio-cpu
 
 COPY --chmod=775 start.sh /start.sh
 
