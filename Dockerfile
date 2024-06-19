@@ -1,5 +1,5 @@
 # From https://github.com/go-skynet/LocalAI/blob/master/Dockerfile
-FROM quay.io/go-skynet/local-ai:v2.17.0-aio-cpu
+FROM quay.io/go-skynet/local-ai:v2.17.1-aio-cpu
 
 COPY --chmod=775 start.sh /start.sh
 
