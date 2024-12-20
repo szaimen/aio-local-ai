@@ -1,0 +1,20 @@
+# a quick way to build and run the docker image
+services:
+  cpu:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: szaimen/aio-local-ai:v2
+
+  cuda12:
+    build:
+        context: .
+        dockerfile: Dockerfile.cuda12
+    image: szaimen/aio-local-ai-cuda12:v2
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
