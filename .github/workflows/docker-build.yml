@@ -82,7 +82,7 @@ jobs:
           context: './'
           no-cache: true
           file: 'Dockerfile'
-          tags: szaimen/aio-local-ai:${{ github.event.inputs.tagName }}
+          tags: luzfcb/aio-local-ai:${{ github.event.inputs.tagName }}
           provenance: false
 
   push_gpu_image_to_registry:
@@ -157,7 +157,7 @@ jobs:
           context: './'
           no-cache: true
           file: 'Dockerfile.cuda12'
-          tags: szaimen/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
+          tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
           provenance: false
 
       - name: Push container image
@@ -168,5 +168,5 @@ jobs:
           context: './'
           no-cache: true
           file: 'Dockerfile.cuda12'
-          tags: szaimen/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
+          tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
           provenance: false
