@@ -93,45 +93,45 @@ jobs:
     name: Build docker GPU image and push to dockerhub
 
     steps:
-#      - name: Release space from worker
-#        run: |
-#          echo "Listing top largest packages"
-#          pkgs=$(dpkg-query -Wf '${Installed-Size}\t${Package}\t${Status}\n' | awk '$NF == "installed"{print $1 "\t" $2}' | sort -nr)
-#          head -n 30 <<< "${pkgs}"
-#          echo "Available storage before:"
-#          sudo df -h
-#          echo
-#          sudo apt-get remove -y '^llvm-.*|^libllvm.*' || true
-#          sudo apt-get remove --auto-remove android-sdk-platform-tools || true
-#          sudo apt-get purge --auto-remove android-sdk-platform-tools || true
-#          sudo rm -rf /usr/local/lib/android
-#          sudo apt-get purge -y '^dotnet-.*|^aspnetcore-.*' || true
-#          sudo apt-get purge -y '^temurin-.*|^ca-certificates-java.*' || true
-#          sudo apt-get purge -y '^libclang-.*' || true
-#          sudo rm -rf /usr/share/dotnet
-#          sudo apt-get purge -y '^mono-.*' || true
-#          sudo apt-get purge -y '^ghc-.*' || true
-#          sudo apt-get purge -y '.*jdk.*|.*jre.*' || true
-#          sudo apt-get purge -y 'php.*' || true
-#          sudo apt-get purge -y hhvm powershell firefox monodoc-manual msbuild || true
-#          sudo apt-get purge -y '^google-.*' || true
-#          sudo apt-get purge -y azure-cli || true
-#          sudo apt-get purge -y '^mongo.*-.*|^postgresql-.*|^mysql-.*|^mssql-.*' || true
-#          sudo apt-get purge -y '^gfortran-.*' || true
-#          sudo apt-get purge -y '^microsoft-edge-stable.*|^firefox.*|powershell.*' || true
-#          sudo apt-get autoremove -y
-#          sudo apt-get clean
-#          sudo rm -rf /usr/share/dotnet || true
-#          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
-#          echo
-#          echo "Listing top largest packages"
-#          pkgs=$(dpkg-query -Wf '${Installed-Size}\t${Package}\t${Status}\n' | awk '$NF == "installed"{print $1 "\t" $2}' | sort -nr)
-#          head -n 30 <<< "${pkgs}"
-#          echo
-#          sudo rm -rfv build || true
-#          sudo docker system prune --all --volumes --force || true
-#          echo "Available storage after:"
-#          df -h
+      - name: Release space from worker
+        run: |
+          echo "Listing top largest packages"
+          pkgs=$(dpkg-query -Wf '${Installed-Size}\t${Package}\t${Status}\n' | awk '$NF == "installed"{print $1 "\t" $2}' | sort -nr)
+          head -n 30 <<< "${pkgs}"
+          echo "Available storage before:"
+          sudo df -h
+          echo
+          sudo apt-get remove -y '^llvm-.*|^libllvm.*' || true
+          sudo apt-get remove --auto-remove android-sdk-platform-tools || true
+          sudo apt-get purge --auto-remove android-sdk-platform-tools || true
+          sudo rm -rf /usr/local/lib/android
+          sudo apt-get purge -y '^dotnet-.*|^aspnetcore-.*' || true
+          sudo apt-get purge -y '^temurin-.*|^ca-certificates-java.*' || true
+          sudo apt-get purge -y '^libclang-.*' || true
+          sudo rm -rf /usr/share/dotnet
+          sudo apt-get purge -y '^mono-.*' || true
+          sudo apt-get purge -y '^ghc-.*' || true
+          sudo apt-get purge -y '.*jdk.*|.*jre.*' || true
+          sudo apt-get purge -y 'php.*' || true
+          sudo apt-get purge -y hhvm powershell firefox monodoc-manual msbuild || true
+          sudo apt-get purge -y '^google-.*' || true
+          sudo apt-get purge -y azure-cli || true
+          sudo apt-get purge -y '^mongo.*-.*|^postgresql-.*|^mysql-.*|^mssql-.*' || true
+          sudo apt-get purge -y '^gfortran-.*' || true
+          sudo apt-get purge -y '^microsoft-edge-stable.*|^firefox.*|powershell.*' || true
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          echo
+          echo "Listing top largest packages"
+          pkgs=$(dpkg-query -Wf '${Installed-Size}\t${Package}\t${Status}\n' | awk '$NF == "installed"{print $1 "\t" $2}' | sort -nr)
+          head -n 30 <<< "${pkgs}"
+          echo
+          sudo rm -rfv build || true
+          sudo docker system prune --all --volumes --force || true
+          echo "Available storage after:"
+          df -h
 
       - name: Available storage after
         run: df -h
@@ -144,34 +144,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: n
-        run: |
-            echo -e "\nUser is: ${{ secrets.DOCKERHUB_USERNAME }}\n\n"
-
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#      - name: Build container image
-#        uses: docker/build-push-action@v6
-#        with:
-#          push: false
-#          platforms: linux/amd64
-#          context: './'
-#          no-cache: true
-#          file: 'Dockerfile.cuda12'
-#          tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
-#          provenance: false
-#
-#      - name: Push container image
-#        uses: docker/build-push-action@v6
-#        with:
-#          push: true
-#          platforms: linux/amd64
-#          context: './'
-#          no-cache: true
-#          file: 'Dockerfile.cuda12'
-#          tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
-#          provenance: false
+      - name: Build container image
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          platforms: linux/amd64
+          context: './'
+          no-cache: true
+          file: 'Dockerfile.cuda12'
+          tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
+          provenance: false
+
+      - name: Push container image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          platforms: linux/amd64
+          context: './'
+          no-cache: true
+          file: 'Dockerfile.cuda12'
+          tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
+          provenance: false
