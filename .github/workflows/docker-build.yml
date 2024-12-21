@@ -173,6 +173,25 @@ jobs:
       - name: Available storage before build
         run: df -h
 
+      - name: Extract Base GPU Docker Image name
+        id: extract-image
+        run: |
+          BASE_GPU_IMAGE=$(awk '/^FROM / {print $2}' Dockerfile.cuda12)
+          echo "Base GPU image found: $BASE_GPU_IMAGE"
+          echo "BASE_GPU_IMAGE=$BASE_GPU_IMAGE" >> $GITHUB_ENV
+
+      - name: Pull Base Docker Image
+        run: |
+          echo "Pulling Docker image: $BASE_GPU_IMAGE"
+          docker pull "$BASE_GPU_IMAGE"
+        env:
+          BASE_IMAGE: ${{ env.BASE_GPU_IMAGE }}
+      - name: Create a TMPDIR for docker build on a different disk
+        run: |
+          mkdir -p /tmp/docker-build
+          export TMPDIR=/tmp/docker-build
+          echo "TMPDIR=$TMPDIR" >> $GITHUB_ENV
+
       - name: Build container image
         uses: docker/build-push-action@v6
         with:
@@ -183,6 +202,8 @@ jobs:
           file: 'Dockerfile.cuda12'
           tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
           provenance: false
+        env:
+          TMPDIR: ${{ env.TMPDIR }}
 
       - name: Verify Docker image size
         uses: luzfcb/docker-image-size-limit@master
