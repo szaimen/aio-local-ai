@@ -161,6 +161,14 @@ jobs:
           tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
           provenance: false
 
+      - name: Verify Docker image size
+        uses: luzfcb/docker-image-size-limit@master
+        with:
+          image: "luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}"
+          size: "47GB"
+          show_current_size: true
+          dry_run: true
+
       - name: Push container image
         uses: docker/build-push-action@v6
         with:
