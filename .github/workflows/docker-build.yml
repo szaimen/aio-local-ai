@@ -185,16 +185,25 @@ jobs:
           echo "Pulling Docker image: $BASE_GPU_IMAGE"
           docker pull "$BASE_GPU_IMAGE"
         env:
-          BASE_IMAGE: ${{ env.BASE_GPU_IMAGE }}
+          BASE_GPU_IMAGE: ${{ env.BASE_GPU_IMAGE }}
 
       - name: Create a TMPDIR for docker build on a different disk
         run: |
           mkdir -p /tmp/docker-build
           export TMPDIR=/tmp/docker-build
           echo "TMPDIR=$TMPDIR" >> $GITHUB_ENV
-          
+
       - name: Available storage before build
         run: df -h
+
+      - name: Verify Docker image size
+        uses: luzfcb/docker-image-size-limit@master
+        with:
+          image: "${{ env.BASE_GPU_IMAGE }}"
+          size: "47GB"
+          show_current_size: true
+          dry_run: true
+
 
       - name: Build container image
         uses: docker/build-push-action@v6
