@@ -86,7 +86,8 @@ jobs:
           provenance: false
 
   push_gpu_image_to_registry:
-    runs-on: ubuntu-24.04 [Beta]
+    runs-on: ubuntu-22.04
+    environment: "DockerHubAccess"
     if: ${{ github.event.inputs.buildGPU == 'true' }}
 
     name: Build docker GPU image and push to dockerhub
