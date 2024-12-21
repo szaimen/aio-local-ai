@@ -186,11 +186,15 @@ jobs:
           docker pull "$BASE_GPU_IMAGE"
         env:
           BASE_IMAGE: ${{ env.BASE_GPU_IMAGE }}
+
       - name: Create a TMPDIR for docker build on a different disk
         run: |
           mkdir -p /tmp/docker-build
           export TMPDIR=/tmp/docker-build
           echo "TMPDIR=$TMPDIR" >> $GITHUB_ENV
+          
+      - name: Available storage before build
+        run: df -h
 
       - name: Build container image
         uses: docker/build-push-action@v6
@@ -198,7 +202,6 @@ jobs:
           push: false
           platforms: linux/amd64
           context: './'
-          no-cache: true
           file: 'Dockerfile.cuda12'
           tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
           provenance: false
@@ -222,7 +225,6 @@ jobs:
           push: true
           platforms: linux/amd64
           context: './'
-          no-cache: true
           file: 'Dockerfile.cuda12'
           tags: luzfcb/aio-local-ai-cuda12:${{ github.event.inputs.tagName }}
           provenance: false
