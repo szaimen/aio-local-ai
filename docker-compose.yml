@@ -8,9 +8,11 @@ services:
 
   cuda12:
     build:
-        context: .
-        dockerfile: Dockerfile.cuda12
-    image: szaimen/aio-local-ai-cuda12:v2
+      platforms:
+        - linux/amd64
+      context: .
+      dockerfile: Dockerfile.cuda12
+    image: luzfcb/aio-local-ai-cuda12:v2
     deploy:
       resources:
         reservations:
