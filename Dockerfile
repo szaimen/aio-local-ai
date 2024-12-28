@@ -1,5 +1,7 @@
 # From https://github.com/go-skynet/LocalAI/blob/master/Dockerfile
-FROM quay.io/go-skynet/local-ai:v2.24.2-aio-cpu
+FROM localai/localai:v2.24.2-vulkan-ffmpeg-core
+
+# TODO: update dockerfile
 
 COPY --chmod=775 start.sh /start.sh
 
