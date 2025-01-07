@@ -26,7 +26,7 @@ echo -e "    For more details on supported GPUs and requirements, please refer t
 # Filter only GPU-related devices using device class codes (0300, 0302, 0380)
 if command -v lspci &>/dev/null; then
     echo "Detected GPUs:"
-    lspci -nn | awk '/\[030[02|80]\]/'
+    lspci -nn | awk '/\[03(00|02|80)\]/'
 else
     echo "    'lspci' not available to detect GPUs."
 fi
@@ -60,6 +60,14 @@ done
 set -x
 THREADS="$(nproc)"
 export THREADS
+
+# enable GPU
+LOCALAI_F16=true
+export LOCALAI_F16
+
+
 set +x
+
+
 
 ./local-ai --preload-models-config "/nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml"
