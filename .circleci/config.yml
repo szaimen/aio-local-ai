@@ -1,0 +1,62 @@
+version: 2.1
+
+jobs:
+  build-and-push:
+    parameters:
+      tag-name:
+        type: string
+        default: "v2"
+    machine:
+      image: ubuntu-2404:2024.08.1
+      docker_layer_caching: true
+    resource_class: medium
+    environment:
+      DOCKER_BUILDKIT: 1
+    steps:
+      - checkout
+
+      - run:
+          name: Show disk usage (1st time)
+          command: |
+            df -h
+
+      - run:
+          name: Pull base GPU image (from Dockerfile.cuda12)
+          command: |
+            BASE_GPU_IMAGE=$(awk '/^FROM / {print $2}' Dockerfile.cuda12)
+            echo "Base GPU image found: $BASE_GPU_IMAGE"
+            echo "Pulling Docker image: $BASE_GPU_IMAGE"
+            docker pull "$BASE_GPU_IMAGE"
+
+      - run:
+          name: Show disk usage (2nd time)
+          command: |
+            df -h
+
+      - run:
+          name: Build Docker image (no-cache)
+          command: |
+            echo "Building Docker image with tag: << parameters.tag-name >>"
+            docker build \
+              --platform linux/amd64 \
+              -f Dockerfile.cuda12 \
+              -t "luzfcb/aio-local-ai-cuda12:<< parameters.tag-name >>" \
+              .
+      - run:
+          name: Show disk usage (3nd time)
+          command: |
+            df -h
+      - run:
+          name: Push Docker image to Docker Hub
+          command: |
+            # Assumes you've set DOCKERHUB_USERNAME and DOCKERHUB_PASSWORD as environment variables in CircleCI
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            echo "Pushing image: luzfcb/aio-local-ai-cuda12:<< parameters.tag-name >>"
+            docker push "luzfcb/aio-local-ai-cuda12:<< parameters.tag-name >>"
+
+
+workflows:
+  build-and-push-workflow:
+    jobs:
+      - build-and-push:
+          tag-name: "v2"  # OPTIONAL: override default if desired
