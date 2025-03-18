@@ -19,20 +19,10 @@ else
     echo "CPU: no AVX512 found"
 fi
 
-while ! nc -z nextcloud-aio-nextcloud 9001; do
-    echo "Waiting for nextcloud to start"
-    sleep 5
-done
-
-while ! [ -f /nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml ]; do
-    echo "Waiting for nextcloud-aio-local-ai/models.yaml file to be created"
-    sleep 5
-done
-
 # Set Threads automatically
 set -x
 THREADS="$(nproc)"
 export THREADS
 set +x
 
-./local-ai --preload-models-config "/nextcloud/admin/files/nextcloud-aio-local-ai/models.yaml"
+./local-ai
